@@ -1,110 +1,63 @@
 """
-Week 4 Starter Code - Level 3: Proficient
-Weather Dashboard
+Week 4 Homework - Level 3: Proficient
+Weather Lookup with 3-Day Forecast
 """
 
 import requests
 
-# Weather codes mapping (Open-Meteo)
-WEATHER_CODES = {
-    0: "Clear sky",
-    1: "Mainly clear",
-    2: "Partly cloudy",
-    3: "Overcast",
-    45: "Foggy",
-    48: "Depositing rime fog",
-    51: "Light drizzle",
-    53: "Moderate drizzle",
-    55: "Dense drizzle",
-    61: "Slight rain",
-    63: "Moderate rain",
-    65: "Heavy rain",
-    71: "Slight snow",
-    73: "Moderate snow",
-    75: "Heavy snow",
-    80: "Slight rain showers",
-    81: "Moderate rain showers",
-    82: "Violent rain showers",
-    95: "Thunderstorm",
+# Weather code meanings
+WEATHER = {
+    0: "Clear", 1: "Mainly clear", 2: "Partly cloudy", 3: "Overcast",
+    45: "Fog", 51: "Drizzle", 61: "Rain", 63: "Rain",
+    71: "Snow", 80: "Showers", 95: "Thunderstorm"
 }
 
-def get_coordinates(city_name):
-    """Get latitude and longitude for a city using geocoding API"""
-    
-    url = f"https://geocoding-api.open-meteo.com/v1/search?name={city_name}"
-    
-    # ============================================
-    # YOUR CODE HERE:
-    # ============================================
-    # 1. Make GET request
-    # 2. Check status code
-    # 3. Parse JSON
-    # 4. Return dict with 'lat' and 'lon' keys
-    # Return None if city not found
-    
-    return {'lat': 31.23, 'lon': 121.47}  # Placeholder - replace with real code
+city = input("Enter city name: ")
 
-def get_weather(lat, lon):
-    """Get weather data for coordinates"""
-    
-    url = f"https://api.open-meteo.com/v1/forecast"
-    params = {
-        'latitude': lat,
-        'longitude': lon,
-        'current': 'temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m',
-        'daily': 'temperature_2m_max,temperature_2m_min,weather_code',
-        'timezone': 'auto',
-        'forecast_days': 3
-    }
-    
-    # ============================================
-    # YOUR CODE HERE:
-    # ============================================
-    # 1. Make GET request with params
-    # 2. Parse JSON
-    # 3. Return the weather data
-    
-    return {}  # Placeholder - replace with real code
+# ============================================
+# Step 1: Get coordinates using geocoding API
+# ============================================
+geo_url = f"https://geocoding-api.open-meteo.com/v1/search?name={city}&count=1"
+geo_response = requests.get(geo_url).json()
 
-def display_weather(city, weather_data):
-    """Display weather information nicely"""
-    
-    current = weather_data.get('current', {})
-    daily = weather_data.get('daily', {})
-    
-    # ============================================
-    # YOUR CODE HERE:
-    # ============================================
-    # Extract and display:
-    # - Current temperature
-    # - Weather condition (use WEATHER_CODES mapping)
-    # - Humidity
-    # - Wind speed
-    # - Daily high/low
-    
-    print("\n" + "=" * 40)
-    print(f"Weather in {city}")
-    print("=" * 40)
-    # Add your print statements here
-    
-    # Display 3-day forecast
-    print("\n3-Day Forecast:")
-    # Loop through daily data and print
+if 'results' not in geo_response:
+    print(f"City '{city}' not found!")
+    exit()
 
-def main():
-    city = input("Enter a city name: ")
-    
-    # Step 1: Get coordinates
-    coords = get_coordinates(city)
-    if not coords:
-        print(f"City '{city}' not found!")
-        return
-    
-    # Step 2: Get weather data
-    weather = get_weather(coords['lat'], coords['lon'])
-    
-    # Step 3: Display weather
-    display_weather(city, weather)
+# Extract coordinates
+lat = geo_response['results'][0]['latitude']
+lon = geo_response['results'][0]['longitude']
+display_name = geo_response['results'][0]['name']
 
-if __name__ == "__main__":
-    main()
+# ============================================
+# Step 2: Get weather data
+# ============================================
+weather_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=3"
+weather = requests.get(weather_url).json()
+
+# ============================================
+# Step 3: Display current weather
+# ============================================
+current = weather['current']
+temp = current['temperature_2m']
+code = current['weather_code']
+condition = WEATHER.get(code, "Unknown")
+
+print(f"\n{'='*40}")
+print(f"Weather in {display_name}")
+print(f"{'='*40}")
+print(f"Current: {temp}°C - {condition}")
+
+# ============================================
+# Step 4: Display 3-day forecast
+# ============================================
+daily = weather['daily']
+dates = daily['time']
+maxTemps = daily['temperature_2m_max']
+minTemps = daily['temperature_2m_min']
+
+print(f"\n3-Day Forecast:")
+for i in range(len(dates)):
+    print(f"  {dates[i]}: {maxTemps[i]}°C / {minTemps[i]}°C")
+
+print(f"{'='*40}")

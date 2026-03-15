@@ -1,33 +1,26 @@
 """
-Week 4 Starter Code - Level 1: Not Yet
-API Basics Practice
+Week 4 Homework - Level 1: Not Yet
+Simple API Request
 """
 
 import requests
 
-# Fetch post #1
+# JSONPlaceholder API - free, no key needed
 url = "https://jsonplaceholder.typicode.com/posts/1"
 
 # ============================================
-# YOUR CODE HERE:
+# YOUR CODE:
 # ============================================
+# 1. Make a GET request
+response = requests.get(url)
 
-# 1. Make a GET request using requests.get()
-# Assign the result to a variable called 'response'
-
-# 2. Check if the request was successful (status code 200)
-# Print "Success!" if it worked
-
-# 3. Convert the response to JSON
-# Assign it to a variable called 'data'
-
-# 4. Print the post's title and body
-# Use: data['title'] and data['body']
-
-
-# ============================================
-# EXPECTED OUTPUT:
-# ============================================
-# Success!
-# Title: sunt aut facere repellat provident occaecati excepturi optio reprehenderit
-# Body: quia et suscipit\nsuscipit recusandae consequuntur ...
+# 2. Check if successful (status code 200)
+if response.status_code == 200:
+    # 3. Convert to JSON (dictionary)
+    data = response.json()
+    
+    # 4. Print the title and body
+    print("Title:", data['title'])
+    print("Body:", data['body'])
+else:
+    print("Error: Status code", response.status_code)

@@ -2,7 +2,7 @@
 
 ## Due: [Insert Due Date]
 
-Complete the homework assignment that matches your level. Read the descriptions carefully to choose the right level - you should be challenged but not overwhelmed.
+Complete the homework assignment that matches your level. Choose the level that challenges you appropriately.
 
 ---
 
@@ -10,10 +10,10 @@ Complete the homework assignment that matches your level. Read the descriptions 
 
 ### Task: API Basics Practice
 
-**Objective:** Demonstrate understanding of basic API concepts
+**Objective:** Learn to make a simple API request
 
 **Requirements:**
-1. Use the JSONPlaceholder API (no API key needed)
+1. Use JSONPlaceholder API (no API key needed)
 2. Make a GET request to fetch a single post
 3. Print the post's title and body
 
@@ -21,14 +21,13 @@ Complete the homework assignment that matches your level. Read the descriptions 
 ```python
 import requests
 
-# Fetch post #1
 url = "https://jsonplaceholder.typicode.com/posts/1"
 
-# Add your code here:
-# 1. Make a GET request
-# 2. Check if successful (status code 200)
-# 3. Convert to JSON
-# 4. Print the title and body
+# Your task:
+# 1. Make a GET request: requests.get(url)
+# 2. Check if successful (response.status_code)
+# 3. Convert to JSON: response.json()
+# 4. Print title and body
 ```
 
 **Example Output:**
@@ -37,335 +36,155 @@ Title: sunt aut facere repellat provident occaecati excepturi optio reprehenderi
 Body: quia et suscipit\nsuscipit recusandae consequuntur ...
 ```
 
-**Grading:**
-- Uses requests.get() correctly: 2 points
-- Checks status code: 2 points
-- Correctly parses JSON: 2 points
-- Prints title and body: 2 points
-- Code runs without errors: 2 points
-
 ---
 
 ## Level 2: Developing
 
 ### Task: Country Information Fetcher
 
-**Objective:** Fetch and display data from a real API
+**Objective:** Fetch and display real data from an API
 
 **Requirements:**
 1. Use REST Countries API: `https://restcountries.com/v3.1/name/{country}`
-2. Ask user to input a country name
-3. Display the following information:
-   - Country name
-   - Capital
-   - Population
-   - Region
-   - Language(s)
-4. Handle errors (country not found, network error)
-5. Allow the user to search again or quit
+2. Ask user for a country name
+3. Display: Country name, Capital, Population, Region
+4. Handle "country not found" error
 
 **Starter Code:**
 ```python
 import requests
 
-def search_country():
-    # Ask user for country name
-    country = input("Enter a country name (or 'quit' to exit): ")
-    
-    if country.lower() == 'quit':
-        return False
-    
-    # Make API request
-    url = f"https://restcountries.com/v3.1/name/{country}"
-    
-    # Add your code here:
-    # 1. Make GET request
-    # 2. Check status code
-    # 3. Parse JSON
-    # 4. Extract and display country info
-    # 5. Handle errors (try/except)
-    
-    return True
+country = input("Enter a country name: ")
+url = f"https://restcountries.com/v3.1/name/{country}"
 
-# Main loop
-while search_country():
-    print()
-
-print("Goodbye!")
+# Your task:
+# 1. Make GET request
+# 2. Check if found (status code 200)
+# 3. Parse JSON (returns a list!)
+# 4. Print: name, capital[0], population, region
 ```
 
 **Example Output:**
 ```
 Enter a country name: Japan
-Country: Japan 🇯🇵
+Country: Japan
 Capital: Tokyo
-Population: 125,800,000
+Population: 125800000
 Region: Asia
-Languages: Japanese
-
-Enter a country name: France
-Country: France 🇫🇷
-Capital: Paris
-Population: 67,390,000
-Region: Europe
-Languages: French
-
-Enter a country name (or 'quit' to exit): quit
-Goodbye!
 ```
-
-**Grading:**
-- Successful API call: 2 points
-- Displays all 5 fields correctly: 5 points
-- Error handling (not found): 2 points
-- Error handling (network error): 2 points
-- Loop allows multiple searches: 2 points
-- Code quality and comments: 2 points
 
 ---
 
 ## Level 3: Proficient
 
-### Task: Weather Dashboard
+### Task: Weather Lookup
 
-**Objective:** Build a useful application using a weather API
+**Objective:** Use two APIs together (geocoding + weather)
 
 **Requirements:**
-1. Use Open-Meteo API (free, no API key): `https://api.open-meteo.com/v1/forecast`
-2. Ask user for a city name (you can use hardcoded coordinates or geocoding)
-3. Display:
-   - Current temperature
-   - Weather condition (sunny, cloudy, rainy, etc.)
-   - Humidity
-   - Wind speed
-   - High/Low for the day
-4. Show a 3-day forecast
-5. Proper error handling
-
-**Geocoding Option:** Use `https://geocoding-api.open-meteo.com/v1/search?name={city}`
+1. Use Open-Meteo APIs (free, no key)
+2. Ask user for a city name
+3. Use geocoding API to get coordinates
+4. Use weather API to get current temp and conditions
+5. Show 3-day forecast
 
 **Starter Code:**
 ```python
 import requests
 
-def get_coordinates(city_name):
-    """Get latitude and longitude for a city"""
-    url = f"https://geocoding-api.open-meteo.com/v1/search?name={city_name}"
-    # Add your code here
-    
-def get_weather(lat, lon):
-    """Get weather data for coordinates"""
-    url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min&timezone=auto"
-    # Add your code here
+city = input("Enter city name: ")
 
-def main():
-    city = input("Enter a city name: ")
-    
-    # Step 1: Get coordinates
-    coords = get_coordinates(city)
-    if not coords:
-        print("City not found!")
-        return
+# Step 1: Get coordinates
+geo_url = f"https://geocoding-api.open-meteo.com/v1/search?name={city}"
+geo_response = requests.get(geo_url).json()
+
+if geo_response.get('results'):
+    lat = geo_response['results'][0]['latitude']
+    lon = geo_response['results'][0]['longitude']
     
     # Step 2: Get weather
-    weather = get_weather(coords['lat'], coords['lon'])
+    weather_url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&timezone=auto"
+    weather = requests.get(weather_url).json()
     
     # Step 3: Display current weather
-    print(f"\nWeather in {city}:")
-    print(f"Temperature: {weather['current']['temperature_2m']}°C")
-    # Add more...
+    temp = weather['current']['temperature_2m']
+    code = weather['current']['weather_code']
+    print(f"Current temp in {city}: {temp}°C")
     
     # Step 4: Display 3-day forecast
-    print("\n3-Day Forecast:")
-    # Add your code here
-
-if __name__ == "__main__":
-    main()
+    # ... your code here
+else:
+    print("City not found!")
 ```
 
 **Example Output:**
 ```
-Enter a city name: Shanghai
-Weather in Shanghai:
-Temperature: 18°C
-Condition: Partly Cloudy
-Humidity: 65%
-Wind: 12 km/h
-High: 22°C | Low: 15°C
-
+Enter city name: Shanghai
+Current temp in Shanghai: 18°C
 3-Day Forecast:
-Tue: ⛅ 22°C / 16°C
-Wed: 🌧️ 19°C / 14°C
-Thu: ⛅ 21°C / 15°C
+Today: 22°C/15°C
+Tomorrow: 20°C/14°C
+Wed: 21°C/15°C
 ```
-
-**Grading:**
-- Geocoding works: 2 points
-- Current weather displays correctly: 3 points
-- All 5 metrics shown: 2 points
-- 3-day forecast displayed: 3 points
-- Error handling: 2 points
-- Clean output formatting: 2 points
-- Code quality: 1 point
 
 ---
 
 ## Level 4: Advanced
 
-### Task: Cryptocurrency Portfolio Tracker
+### Task: Combined API Explorer
 
-**Objective:** Build a comprehensive portfolio tracking application
+**Objective:** Build a useful tool combining multiple APIs
 
 **Requirements:**
-1. Use CoinGecko API (free, no key): `https://api.coingecko.com/api/v3/`
-2. Features required:
-   - Show top 10 cryptocurrencies by market cap
-   - Search for any coin by name
-   - **Portfolio tracking:** Allow user to add holdings (coin, amount)
-   - Calculate total portfolio value in USD
-   - Show 24h price change for each coin
-   - Calculate profit/loss for portfolio
-3. Save portfolio to a JSON file
-4. Load portfolio on startup
+1. Create a menu with 3 options:
+   - Look up a country
+   - Check weather for a city
+   - Get a random joke
+2. Use at least 2 different APIs
+3. Handle errors gracefully
+4. Allow user to use multiple times
 
-**API Endpoints:**
-- Top coins: `/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10`
-- Search: `/search?query={term}`
-- Coin details: `/coins/{id}?localization=false&tickers=false&community_data=false&developer_data=false`
+**Bonus (optional):**
+- Add currency conversion using the country API
+- Save search history to a list
 
-**Bonus Challenges (choose at least 2):**
-- [ ] Add price alerts (notify when coin crosses threshold)
-- [ ] Show 7-day price history chart (use matplotlib)
-- [ ] Add coin comparison feature
-- [ ] Implement portfolio diversification analysis
-- [ ] Add "watchlist" feature separate from portfolio
-
-**Starter Code:**
-```python
-import requests
-import json
-from datetime import datetime
-
-class CryptoPortfolio:
-    def __init__(self):
-        self.portfolio = {}  # {coin_id: amount}
-        self.load()
-    
-    def load(self):
-        """Load portfolio from file"""
-        try:
-            with open('portfolio.json', 'r') as f:
-                self.portfolio = json.load(f)
-        except FileNotFoundError:
-            self.portfolio = {}
-    
-    def save(self):
-        """Save portfolio to file"""
-        with open('portfolio.json', 'w') as f:
-            json.dump(self.portfolio, f, indent=2)
-    
-    def get_top_coins(self):
-        """Get top 10 cryptocurrencies"""
-        url = "https://api.coingecko.com/api/v3/coins/markets"
-        params = {
-            'vs_currency': 'usd',
-            'order': 'market_cap_desc',
-            'per_page': 10,
-            'page': 1
-        }
-        response = requests.get(url, params=params)
-        return response.json()
-    
-    def search_coin(self, query):
-        """Search for a coin"""
-        # Add your code
-    
-    def add_holding(self, coin_id, amount):
-        """Add coins to portfolio"""
-        # Add your code
-    
-    def calculate_value(self, prices):
-        """Calculate total portfolio value"""
-        # Add your code
-    
-    def display_top(self):
-        """Display top 10 coins"""
-        # Add your code
-    
-    def display_portfolio(self, prices):
-        """Display current holdings"""
-        # Add your code
-
-def main():
-    portfolio = CryptoPortfolio()
-    
-    while True:
-        print("\n=== Crypto Portfolio Tracker ===")
-        print("1. View Top 10 Cryptocurrencies")
-        print("2. Search for a Coin")
-        print("3. Add to Portfolio")
-        print("4. View Portfolio")
-        print("5. Exit")
-        
-        choice = input("\nEnter your choice: ")
-        
-        if choice == '1':
-            # Display top coins
-            pass
-        elif choice == '2':
-            # Search coin
-            pass
-        elif choice == '3':
-            # Add holding
-            pass
-        elif choice == '4':
-            # View portfolio
-            pass
-        elif choice == '5':
-            portfolio.save()
-            print("Portfolio saved. Goodbye!")
-            break
-
-if __name__ == "__main__":
-    main()
-```
+**API Options:**
+- Countries: `https://restcountries.com/v3.1/name/{name}`
+- Weather: `https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=temperature_2m`
+- Jokes: `https://official-joke-api.appspot.com/random_joke`
 
 **Example Output:**
 ```
-=== Crypto Portfolio Tracker ===
-1. View Top 10 Cryptocurrencies
-2. Search for a Coin
-3. Add to Portfolio
-4. View Portfolio
-5. Exit
+=== API Explorer ===
+1. Country Info
+2. Weather
+3. Random Joke
+4. Exit
 
-Enter your choice: 1
+Choice: 1
+Enter country: Brazil
+Country: Brazil
+Capital: Brasilia
+Population: 212559417
+Region: Americas
 
-Top 10 Cryptocurrencies:
-1. Bitcoin (BTC)     $45,234.56   +2.34%
-2. Ethereum (ETH)     $2,567.89    +1.56%
-3. Tether (USDT)     $1.00        +0.01%
-...
+Choice: 2
+Enter city: Tokyo
+Weather in Tokyo: 20°C
+
+Choice: 3
+Here's a random joke:
+Why don't scientists trust atoms?
+Because they make up everything!
+
+Choice: 4
+Goodbye!
 ```
-
-**Grading:**
-- Top 10 display: 2 points
-- Coin search: 2 points
-- Add holdings: 2 points
-- Portfolio value calculation: 3 points
-- 24h change display: 2 points
-- JSON file save/load: 2 points
-- Error handling: 2 points
-- Bonus features: 2 points each (max 4 points)
-- Code quality: 1 point
 
 ---
 
-## Submission Instructions
+## Submission
 
-1. Save your code with a clear filename (e.g., `homework_week4.py`)
-2. Test with multiple inputs
-3. Take a screenshot of your output
-4. Submit on Canvas
-
-**Late submissions:** -10% per day
+1. Save your code as `homework_week4.py`
+2. Test with at least 3 different inputs
+3. Submit on Canvas

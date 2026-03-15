@@ -1,56 +1,40 @@
 """
-Week 4 Starter Code - Level 2: Developing
+Week 4 Homework - Level 2: Developing
 Country Information Fetcher
 """
 
 import requests
 
-def search_country():
-    """Search for a country and display its information"""
-    
-    # Ask user for country name
-    country = input("Enter a country name (or 'quit' to exit): ")
-    
-    if country.lower() == 'quit':
-        return False
-    
-    # ============================================
-    # YOUR CODE HERE:
-    # ============================================
-    
-    # 1. Build the API URL
-    # API: https://restcountries.com/v3.1/name/{name}
-    url = f"https://restcountries.com/v3.1/name/{country}"
-    
-    # 2. Make a GET request
-    # Use try/except to handle errors
-    
-    # 3. Check if the request was successful (status code 200)
-    
-    # 4. Parse the JSON response
-    # The API returns a LIST, so use data[0] to get the first result
-    
-    # 5. Extract and display:
-    # - name['common'] (country name)
-    # - capital[0] (capital city)
-    # - population (population number)
-    # - region (region like Asia, Europe)
-    # - languages (dictionary of languages)
-    
-    # ============================================
-    # EXPECTED OUTPUT:
-    # ============================================
-    # Enter a country name: Japan
-    # Country: Japan
-    # Capital: Tokyo
-    # Population: 125800000
-    # Region: Asia
-    # Languages: {'jpn': 'Japanese'}
-    
-    return True
+# Get input from user
+country = input("Enter a country name: ")
 
-# Main loop
-while search_country():
-    print()
+# Build the API URL
+url = f"https://restcountries.com/v3.1/name/{country}"
 
-print("Goodbye!")
+# ============================================
+# YOUR CODE:
+# ============================================
+# 1. Make GET request
+response = requests.get(url)
+
+# 2. Check if country was found (status code 200)
+if response.status_code == 200:
+    # 3. Parse JSON - API returns a LIST!
+    data = response.json()
+    country_data = data[0]  # Get first result
+    
+    # 4. Extract information
+    name = country_data['name']['common']
+    capital = country_data['capital'][0]
+    population = country_data['population']
+    region = country_data['region']
+    
+    # 5. Print nicely
+    print("\n" + "=" * 30)
+    print(f"Country: {name}")
+    print(f"Capital: {capital}")
+    print(f"Population: {population:,}")
+    print(f"Region: {region}")
+    print("=" * 30)
+else:
+    print(f"Error: Country '{country}' not found!")
